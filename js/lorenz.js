@@ -13,7 +13,7 @@ function Lorenz(canvas) {
 
     this.params = {
       
-        sigma: 10,
+        sigma: 10.0,
         beta: 8/3,
         rho: 28,
         step_size: 0.007,
