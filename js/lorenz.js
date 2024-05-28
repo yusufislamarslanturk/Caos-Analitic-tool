@@ -23,9 +23,9 @@ function Lorenz(canvas) {
         
     };
     this.display = {
-        scale: 1 / 25,
+        scale: 1 / 30,
         rotation: [1.65, 3.08, -0.93],
-        rotationd: [0, 0, 0],
+        rotationd: [0.005, 0.005, 0.005],
         translation: [0, 0.075, 1.81],
         draw_heads: false,
         damping: true,
@@ -412,11 +412,26 @@ Lorenz.prototype.draw = function() {
         gl.uniform3fv(uniform.translation, translation);
         gl.uniform1f(uniform.rho, rho);
         gl.drawArrays(gl.POINTS, 0, count);
+        
+        // Draw head labels
+        var overlay = document.getElementById('overlay');
+        var ctx = overlay.getContext('2d');
+        ctx.clearRect(0, 0, overlay.width, overlay.height); // Clear previous drawings
+        ctx.font = '12px Arial';
+        ctx.fillStyle = 'white';
+        for (var s = 0; s < count; s++) {
+            var base = s * 3;
+            var x = this.head[base + 0];
+            var y = this.head[base + 1];
+            var z = this.head[base + 2];
+            var screenX = ((x * scale + translation[0]) * width / 2) + width / 2;
+            var screenY = height - (((y * scale + translation[1]) * height / 2) + height / 2);
+            ctx.fillText(`X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z.toFixed(2)}`, screenX, screenY);
+        }
     }
 
     return this;
 };
-
 /**
  * Adjust all buffer sizes if needed.
  */
@@ -538,13 +553,156 @@ Object.defineProperty(Lorenz.prototype, 'length', {
  */
 Lorenz.run = function(canvas) {
     var lorenz = new Lorenz(canvas);
+    var graphicsVisible = false;
+    var startGraph = true;
     for (var i = 0; i < 13; i++)
         lorenz.add(Lorenz.generate());
+    
+    var overlay = document.getElementById('overlay');
+    var ctx = overlay.getContext('2d');
+    var tooltip = document.getElementById('tooltip');
+    var toggleButton = document.getElementById('toggleButton');
+    var toggleButton2 = document.getElementById('toggleButton2');
+
+    function resizeCanvas() {
+        overlay.width = canvas.clientWidth;
+        overlay.height = canvas.clientHeight;
+    }
+
+    function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    }
+
+    function showTooltip(mousePos, data) {
+        tooltip.style.left = mousePos.x + 15 + 'px';
+        tooltip.style.top = mousePos.y + 15 + 'px';
+        tooltip.innerHTML = `X: ${data[0].toFixed(2)}, Y: ${data[1].toFixed(2)}, Z: ${data[2].toFixed(2)}`;
+        tooltip.style.display = 'block';
+    }
+
+    function hideTooltip() {
+        tooltip.style.display = 'none';
+    }
+
+    function drawAxes(ctx, width, height, translation, rotation, scale) {
+        ctx.clearRect(0, 0, width, height);
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        
+        var centerX = width / 2 + translation[0] * scale * width / 2;
+        var centerY = height / 2 - translation[1] * scale * height / 2;
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(rotation[2]);
+
+        // X axis
+        ctx.beginPath();
+        ctx.moveTo(-width / 2, 0);
+        ctx.lineTo(width / 2, 0);
+        ctx.stroke();
+
+        // Y axis
+        ctx.beginPath();
+        ctx.moveTo(0, -height / 2);
+        ctx.lineTo(0, height / 2);
+        ctx.stroke();
+
+        // Z axis (not a real perspective, just an illustration)
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(100, -100);
+        ctx.stroke();
+
+        // Set font size and style for labels
+        ctx.font = '20px Arial';
+        ctx.fillStyle = 'white';
+
+        // X axis labels
+        ctx.fillText('X', width / 2 - centerX - 20, -10);
+        ctx.fillText('-X', -width / 2 - centerX + 10, -10);
+
+        // Y axis labels
+        ctx.fillText('Y', 10, -height / 2 - centerY + 20);
+        ctx.fillText('-Y', 10, height / 2 - centerY - 10);
+
+        // Z axis labels
+        ctx.fillText('Z', 110, -110);
+
+        ctx.restore();
+    }
+
     function go() {
-        lorenz.step();
-        lorenz.draw();
+        if (startGraph) {
+            resizeCanvas();
+            lorenz.step();
+            lorenz.draw();
+        }        
+        if (graphicsVisible) {
+            drawAxes(ctx, overlay.width, overlay.height, lorenz.display.translation, lorenz.display.rotation, lorenz.display.scale);
+        }
         requestAnimationFrame(go);
     }
+
+    toggleButton.addEventListener('click', function() {
+        graphicsVisible = !graphicsVisible;
+        if (!graphicsVisible) {
+            ctx.clearRect(0, 0, overlay.width, overlay.height);
+            tooltip.style.display = 'none';
+        }
+    });
+
+    toggleButton2.addEventListener('click', function() {
+        startGraph = !startGraph;
+        if (!startGraph) {
+            ctx.clearRect(0, 0, overlay.width, overlay.height);
+            tooltip.style.display = 'none';
+        }
+    });
+
+    canvas.addEventListener('mousemove', function(e) {
+        if (graphicsVisible) {
+            var mousePos = getMousePos(canvas, e);
+            var data = lorenz.getDataAtMousePos(mousePos);
+            if (data) {
+                showTooltip(mousePos, data);
+            } else {
+                hideTooltip();
+            }
+        }
+    });
+
+    canvas.addEventListener('mouseout', function() {
+        if (graphicsVisible) {
+            hideTooltip();
+        }
+    });
+
     requestAnimationFrame(go);
     return lorenz;
+};
+
+Lorenz.prototype.getDataAtMousePos = function(mousePos) {
+    var gl = this.gl;
+    var rect = gl.canvas.getBoundingClientRect();
+    var x = (mousePos.x / rect.width) * 2 - 1;
+    var y = 1 - (mousePos.y / rect.height) * 2;
+    var z = 0;
+    
+    var closest = null;
+    var minDist = Infinity;
+
+    for (var i = 0; i < this.solutions.length; i++) {
+        var s = this.solutions[i];
+        var dist = Math.sqrt((s[0] - x) ** 2 + (s[1] - y) ** 2 + (s[2] - z) ** 2);
+        if (dist < minDist) {
+            minDist = dist;
+            closest = s;
+        }
+    }
+    return closest;
 };

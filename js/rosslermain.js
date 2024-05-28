@@ -53,7 +53,7 @@ window.addEventListener('load', function() {
     var rosslerSelect = document.querySelector('#lorenz');
     rosslerSelect.addEventListener('change', function() {
         if (rosslerSelect.value === 'lorenzselected') {
-            window.location.href = 'index.html';
+            window.location.href = 'lorenz.html';
         }
     });
 

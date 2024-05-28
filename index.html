@@ -1,103 +1,35 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Rossler System</title>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-    <link rel="stylesheet" href="lorenz.css"/>
-    <script src="js/lorenz.js" defer></script>
-    <script src="js/controls.js" defer></script>
-    <script src="js/main.js" defer></script>
-
-  </head>
-  <body>
-    <div id="help">
-      <ul>
-        <li><kbd></kbd>
-          <label>Sol tıka basılı tutup sürükleyerek x/y uzayında döndürebilirsiniz.</label>
-        </li>
-        <li><kbd></kbd>
-          <label>Mouse orta tuşuna basılı tutarak sağa sola üste ve alta hareket ettirebilirsiniz.</label>
-        </li>
-        <li><kbd></kbd>
-          <label>shift + sol tık ile grafiği z ekseninde çevirebilirsiniz.</label>
-        </li>
-        <li><kbd></kbd>
-          <label>mouse ile zoom yapabilirsiniz.</label>
-        </li>
-        <li><kbd></kbd>
-          <label>boşluk tuşu ile durdurup tekrar devam ettirebilirsiniz.</label>
-        </li>
-        <li><kbd></kbd>
-          <label>h tuşu ile noktaları gizleyebilirsiniz.</label>
-
-        </li>
-        <li><kbd></kbd>
-          <label>[ tuşu ile kuyruk uzunluğunu azaltabilirsiniz.</label>
-
-        </li>
-        <li><kbd></kbd>
-          <label>] tuşu ile kuyruk uzunluğunu arttırabilirsiniz.</label>
-
-        </li>
-        <li><kbd></kbd>
-          <label>d tuşu ile dönüşsel sürtünmeyi açıp kapatabilirsiniz.</label>
-
-        </li>
-        <li><kbd></kbd>
-          <label>? tuşu ile bu menüyü açıp kapatabilirsiniz.</label>
-
-        </li> 
-        <div class="slidecontainer">
-        <li>
-          <input class="slider" id="length" type="range" min="2" max="12" step="1"/>
-          <label>tail = <span id="length-label"></span></label>
-        </li>
-        <li>
-          <input class="slider" id="sigma" type="range" min="-1" max="20" step="0.01"/>
-          <label>&sigma; = <span id="sigma-label"></span></label>
-        </li>
-        <li>
-          <input class="slider" id="beta" type="range" min="0" max="20" step="0.01"/>
-          <label>&beta; = <span id="beta-label"></span></label>
-        </li>
-        <li>
-          <input class="slider" id="rho" type="range" min="0" max="300" step="0.01"/>
-          <label>&rho; = <span id="rho-label"></span></label>
-        </li>
-      </div>
-        <li>
-          <select id="rossler">
-            <option disabled selected>-- Lorenz System --</option>
-            <option value="rosslerselected">Rossler System</option>
-          </select>
-        </li>
-        <li>
-          <select id="preset">
-            <option disabled selected>-- Ön ayar --</option>
-            <option value="chaos">Chaos Demo</option>
-            <option value="gentle">Gentle Rotation</option>
-            <option value="bendy">Bendy</option>
-          </select>
-        </li>
-      </ul>
-    <br>
-    <br>
-      <div id="stats"></div>
-    </div>
-    <canvas id="lorenz"></canvas>
-   <!-- Site footer -->
-   <footer class="site-footer">
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaotik Haritaların Görselleştirilmesi</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
     <div class="container">
-      <div class="row">
-        <div class="col-sm-12 col-md-6">
-          
-          <p class="text-justify">Lorenz sistemi, ilk olarak matematikçi ve meteorolog Edward Lorenz tarafından incelenen bir adi diferansiyel denklem sistemidir. </p>
-        </div>   
-      </div>
-     
+        <header>
+            <a href="github hesabına yönlendirme">
+                <img src="/kaynaklar/logo.png" alt="Logo" class="logo">
+            </a>
+            <h1>Kaotik Haritaların Görselleştirilmesi</h1>
+        </header>
+        <div class="content">
+            <div class="buttons">
+                <a href="lorenz.html" class="nav-button">
+                    <img src="https://th.bing.com/th/id/OIG3.3qeBCX5kgVAyiT.juHS4?w=1024&h=1024&rs=1&pid=ImgDetMain" alt="Lorenz">
+                    <span>Lorenz Sistemi</span>
+                </a>
+                <a href="rossler.html" class="nav-button">
+                    <img src="https://th.bing.com/th/id/OIG4.ZBuxK_yub55z_mtNmGC.?w=1024&h=1024&rs=1&pid=ImgDetMain" alt="Rossler">
+                    <span>Rossler Sistemi</span>
+                </a>
+            </div>
+            <div class="info">
+                <h2>Kaos Hakkında Genel Bilgiler</h2>
+                <p>Kaotik sistemler ve haritalar hakkında genel bilgileri buraya ekleyebilirsiniz.</p>
+            </div>
+        </div>
     </div>
- 
-</footer>
-
-  </body>
+</body>
 </html>

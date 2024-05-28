@@ -209,3 +209,23 @@ Controls.prototype.bind = function(input_selector, label_selector, f) {
         return self;
     };
 };
+Lorenz.prototype.getDataAtMousePos = function(mousePos) {
+    var gl = this.gl;
+    var rect = gl.canvas.getBoundingClientRect();
+    var x = (mousePos.x / rect.width) * 2 - 1;
+    var y = 1 - (mousePos.y / rect.height) * 2;
+    var z = 0; // Z ekseni şu anda varsayılan
+    
+    var closest = null;
+    var minDist = Infinity;
+
+    for (var i = 0; i < this.solutions.length; i++) {
+        var s = this.solutions[i];
+        var dist = Math.sqrt((s[0] - x) ** 2 + (s[1] - y) ** 2 + (s[2] - z) ** 2);
+        if (dist < minDist) {
+            minDist = dist;
+            closest = s;
+        }
+    }
+    return closest;
+};
