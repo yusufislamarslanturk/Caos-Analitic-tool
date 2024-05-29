@@ -196,7 +196,6 @@ Rossler.color = function(i) {
     return colors.slice(base, base + 3).map(function(x) { return x / 255; });
 };
 
-
 /**
  * Update s to the next Rossler state using RK4.
  * Performs no allocations and hopefully JITs very effectively.
@@ -536,13 +535,156 @@ Object.defineProperty(Rossler.prototype, 'length', {
  */
 Rossler.run = function(canvas) {
     var rossler = new Rossler(canvas);
+    var graphicsVisible = false;
+    var startGraph = true;
     for (var i = 0; i < 13; i++)
         rossler.add(Rossler.generate());
+    
+    var overlay = document.getElementById('overlay');
+    var ctx = overlay.getContext('2d');
+    var tooltip = document.getElementById('tooltip');
+    var toggleButton = document.getElementById('toggleButton');
+    var toggleButton2 = document.getElementById('toggleButton2');
+
+    function resizeCanvas() {
+        overlay.width = canvas.clientWidth;
+        overlay.height = canvas.clientHeight;
+    }
+
+    function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    }
+
+    function showTooltip(mousePos, data) {
+        tooltip.style.left = mousePos.x + 15 + 'px';
+        tooltip.style.top = mousePos.y + 15 + 'px';
+        tooltip.innerHTML = `X: ${data[0].toFixed(2)}, Y: ${data[1].toFixed(2)}, Z: ${data[2].toFixed(2)}`;
+        tooltip.style.display = 'block';
+    }
+
+    function hideTooltip() {
+        tooltip.style.display = 'none';
+    }
+
+    function drawAxes(ctx, width, height, translation, rotation, scale) {
+        ctx.clearRect(0, 0, width, height);
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        
+        var centerX = width / 2 + translation[0] * scale * width / 2;
+        var centerY = height / 2 - translation[1] * scale * height / 2;
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(rotation[2]);
+
+        // X axis
+        ctx.beginPath();
+        ctx.moveTo(-width / 2, 0);
+        ctx.lineTo(width / 2, 0);
+        ctx.stroke();
+
+        // Y axis
+        ctx.beginPath();
+        ctx.moveTo(0, -height / 2);
+        ctx.lineTo(0, height / 2);
+        ctx.stroke();
+
+        // Z axis (not a real perspective, just an illustration)
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(100, -100);
+        ctx.stroke();
+
+        // Set font size and style for labels
+        ctx.font = '20px Arial';
+        ctx.fillStyle = 'white';
+
+        // X axis labels
+        ctx.fillText('X', width / 2 - centerX - 20, -10);
+        ctx.fillText('-X', -width / 2 - centerX + 10, -10);
+
+        // Y axis labels
+        ctx.fillText('Y', 10, -height / 2 - centerY + 20);
+        ctx.fillText('-Y', 10, height / 2 - centerY - 10);
+
+        // Z axis labels
+        ctx.fillText('Z', 110, -110);
+
+        ctx.restore();
+    }
+
     function go() {
-        rossler.step();
-        rossler.draw();
+        if (startGraph) {
+            resizeCanvas();
+            rossler.step();
+            rossler.draw();
+        }        
+        if (graphicsVisible) {
+            drawAxes(ctx, overlay.width, overlay.height, rossler.display.translation, rossler.display.rotation, rossler.display.scale);
+        }
         requestAnimationFrame(go);
     }
+
+    toggleButton.addEventListener('click', function() {
+        graphicsVisible = !graphicsVisible;
+        if (!graphicsVisible) {
+            ctx.clearRect(0, 0, overlay.width, overlay.height);
+            tooltip.style.display = 'none';
+        }
+    });
+
+    toggleButton2.addEventListener('click', function() {
+        startGraph = !startGraph;
+        if (!startGraph) {
+            ctx.clearRect(0, 0, overlay.width, overlay.height);
+            tooltip.style.display = 'none';
+        }
+    });
+
+    canvas.addEventListener('mousemove', function(e) {
+        if (graphicsVisible) {
+            var mousePos = getMousePos(canvas, e);
+            var data = rossler.getDataAtMousePos(mousePos);
+            if (data) {
+                showTooltip(mousePos, data);
+            } else {
+                hideTooltip();
+            }
+        }
+    });
+
+    canvas.addEventListener('mouseout', function() {
+        if (graphicsVisible) {
+            hideTooltip();
+        }
+    });
+
     requestAnimationFrame(go);
     return rossler;
+};
+
+Rossler.prototype.getDataAtMousePos = function(mousePos) {
+    var gl = this.gl;
+    var rect = gl.canvas.getBoundingClientRect();
+    var x = (mousePos.x / rect.width) * 2 - 1;
+    var y = 1 - (mousePos.y / rect.height) * 2;
+    var z = 0;
+    
+    var closest = null;
+    var minDist = Infinity;
+
+    for (var i = 0; i < this.solutions.length; i++) {
+        var s = this.solutions[i];
+        var dist = Math.sqrt((s[0] - x) ** 2 + (s[1] - y) ** 2 + (s[2] - z) ** 2);
+        if (dist < minDist) {
+            minDist = dist;
+            closest = s;
+        }
+    }
+    return closest;
 };

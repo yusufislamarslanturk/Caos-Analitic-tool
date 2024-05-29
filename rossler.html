@@ -1,104 +1,128 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Rossler System</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <link rel="stylesheet" href="rossler.css"/>
     <script src="js/rossler.js" defer></script>
     <script src="js/rosslerControls.js" defer></script>
     <script src="js/rosslermain.js" defer></script>
-
-  </head>
-  <body>
+    <script src="https://kit.fontawesome.com/8471e2a2ee.js" crossorigin="anonymous"></script>
+    <style>
+        #tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            pointer-events: none;
+            display: none;
+        }
+        .button-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        #toggleButton, #toggleButton2 {
+            padding: 10px;
+            background: #1d1515;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+        #toggleButton:hover, #toggleButton2:hover {
+            background: #ff9b9b;
+        }
+    </style>
+</head>
+<body>
     <div id="help">
-      <ul>
-        <li><kbd></kbd>
-          <label>Sol tıka basılı tutup sürükleyerek x/y uzayında döndürebilirsiniz.</label>
-        </li>
-        <li><kbd></kbd>
-          <label>Mouse orta tuşuna basılı tutarak sağa sola üste ve alta hareket ettirebilirsiniz.</label>
-        </li>
-        <li><kbd></kbd>
-          <label>shift + sol tık ile grafiği z ekseninde çevirebilirsiniz.</label>
-        </li>
-        <li><kbd></kbd>
-          <label>mouse ile zoom yapabilirsiniz.</label>
-        </li>
-        <li><kbd></kbd>
-          <label>boşluk tuşu ile durdurup tekrar devam ettirebilirsiniz.</label>
-        </li>
-        <li><kbd></kbd>
-          <label>h tuşu ile noktaları gizleyebilirsiniz.</label>
-
-        </li>
-        <li><kbd></kbd>
-          <label>[ tuşu ile kuyruk uzunluğunu azaltabilirsiniz.</label>
-
-        </li>
-        <li><kbd></kbd>
-          <label>] tuşu ile kuyruk uzunluğunu arttırabilirsiniz.</label>
-
-        </li>
-        <li><kbd></kbd>
-          <label>d tuşu ile dönüşsel sürtünmeyi açıp kapatabilirsiniz.</label>
-
-        </li>
-        <li><kbd></kbd>
-          <label>? tuşu ile bu menüyü açıp kapatabilirsiniz.</label>
-
-        </li> 
-       
-        <div class="slidecontainer">
-          <li>
-            <input class="slider" id="length" type="range" min="2" max="12" step="1"/>
-            <label>tail = <span id="length-label"></span></label>
-          </li>
-          <li>
-            <input class="slider" id="sigma" type="range" min="-1" max="20" step="0.01"/>
-            <label>&sigma; = <span id="sigma-label"></span></label>
-          </li>
-          <li>
-            <input class="slider" id="beta" type="range" min="0" max="20" step="0.01"/>
-            <label>&beta; = <span id="beta-label"></span></label>
-          </li>
-          <li>
-            <input class="slider" id="rho" type="range" min="0" max="300" step="0.01"/>
-            <label>&rho; = <span id="rho-label"></span></label>
-          </li>
-        </div>
-        <li>
-          <select id="lorenz">
-            <option disabled selected>-- Rossler System --</option>
-            <option value="lorenzselected">Lorenz System</option>
-          </select>
-        </li>
-        <li>
-          <select id="preset">
-            <option disabled selected>-- presets --</option>
-            <option value="chaos">Chaos Demo</option>
-            
-            <option value="gentle">Gentle Rotation</option>
-            <option value="bendy">Bendy</option>
-          </select>
-        </li>
-      </ul>
-    <br>
-    <br>
-      <div id="stats"></div>
+        <ul>
+            <li><kbd></kbd>
+                <label>Sol tıka basılı tutup sürükleyerek x/y uzayında döndürebilirsiniz.</label>
+            </li>
+            <li><kbd></kbd>
+                <label>Mouse orta tuşuna basılı tutarak sağa sola üste ve alta hareket ettirebilirsiniz.</label>
+            </li>
+            <li><kbd></kbd>
+                <label>shift + sol tık ile grafiği z ekseninde çevirebilirsiniz.</label>
+            </li>
+            <li><kbd></kbd>
+                <label>mouse ile zoom yapabilirsiniz.</label>
+            </li>
+            <li><kbd></kbd>
+                <label>boşluk tuşu ile durdurup tekrar devam ettirebilirsiniz.</label>
+            </li>
+            <li><kbd></kbd>
+                <label>h tuşu ile noktaları gizleyebilirsiniz.</label>
+            </li>
+            <li><kbd></kbd>
+                <label>[ tuşu ile kuyruk uzunluğunu azaltabilirsiniz.</label>
+            </li>
+            <li><kbd></kbd>
+                <label>] tuşu ile kuyruk uzunluğunu arttırabilirsiniz.</label>
+            </li>
+            <li><kbd></kbd>
+                <label>d tuşu ile dönüşsel sürtünmeyi açıp kapatabilirsiniz.</label>
+            </li>
+            <li><kbd></kbd>
+                <label>? tuşu ile bu menüyü açıp kapatabilirsiniz.</label>
+            </li>
+            <div class="slidecontainer">
+                <li>
+                    <input class="slider" id="length" type="range" min="2" max="12" step="1"/>
+                    <label>tail = <span id="length-label"></span></label>
+                </li>
+                <li>
+                    <input class="slider" id="sigma" type="range" min="-1" max="20" step="0.01"/>
+                    <label>&sigma; = <span id="sigma-label"></span></label>
+                </li>
+                <li>
+                    <input class="slider" id="beta" type="range" min="0" max="20" step="0.01"/>
+                    <label>&beta; = <span id="beta-label"></span></label>
+                </li>
+                <li>
+                    <input class="slider" id="rho" type="range" min="0" max="300" step="0.01"/>
+                    <label>&rho; = <span id="rho-label"></span></label>
+                </li>
+            </div>
+            <li>
+                <select id="lorenz">
+                    <option disabled selected>-- Rossler System --</option>
+                    <option value="lorenzselected">Lorenz System</option>
+                </select>
+            </li>
+            <li>
+                <select id="preset">
+                    <option disabled selected>-- presets --</option>
+                    <option value="chaos">Chaos Demo</option>
+                    <option value="gentle">Gentle Rotation</option>
+                    <option value="bendy">Bendy</option>
+                </select>
+            </li>
+        </ul>
+        <br><br>
+        <div id="stats"></div>
     </div>
     <canvas id="rossler"></canvas>
- 
+    <canvas id="overlay" style="position:absolute; top:0; left:0; pointer-events:none;"></canvas>
+    <div id="tooltip"></div>
+    <div class="button-container">
+      <button id="toggleButton">Grafik Göster</button>
+      <button id="toggleButton2">Şemayı Durdur</button>
+  </div>
+    <!-- Site footer -->
     <footer class="site-footer">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-12 col-md-6">
-            
-            <p class="text-justify">Rossler çekicisi, Otto Rössler tarafından 1970’lerde incelenen Rossler sistemi için bir çekicidir. Rossler sistemi, üç doğrusal olmayan diferansiyel denklemle tanımlanan sürekli zamanlı bir dinamik sistemdir.  </p>
-          </div>   
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <p class="text-justify">Rossler çekicisi, Otto Rössler tarafından 1970’lerde incelenen Rossler sistemi için bir çekicidir. Rossler sistemi, üç doğrusal olmayan diferansiyel denklemle tanımlanan sürekli zamanlı bir dinamik sistemdir.<a style="color: #ff9b9b; font-size: 20px;" href="https://en.wikipedia.org/wiki/R%C3%B6ssler_attractor"><i class="fa-solid fa-question"></i></a></p>
+                </div>
+            </div>
         </div>
-       
-      </div>
-   
-  </footer>
-  </body>
+    </footer>
+</body>
 </html>
